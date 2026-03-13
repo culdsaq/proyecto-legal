@@ -218,6 +218,10 @@
     /* REVEAL */
     .reveal { opacity: 0; transform: translateY(24px); transition: opacity .65s ease, transform .65s ease; }
     .reveal.in { opacity: 1; transform: none; }
+    @media (max-width: 680px) {
+      /* En mobile mostramos todo visible por defecto, la animación es un extra */
+      .reveal { opacity: 1; transform: none; }
+    }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 960px) {
@@ -533,12 +537,17 @@
     document.getElementById('mobileMenu').classList.toggle('open');
   }
 
-  // Scroll reveal
+  // Scroll reveal con fallback para mobile
   const reveals = document.querySelectorAll('.reveal');
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { threshold: 0.08 });
-  reveals.forEach(el => io.observe(el));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+    reveals.forEach(el => io.observe(el));
+    setTimeout(() => { reveals.forEach(el => el.classList.add('in')); }, 1500);
+  } else {
+    reveals.forEach(el => el.classList.add('in'));
+  }
 
   // Nav CTA aparece al salir del hero
   const navAgendar = document.getElementById('nav-agendar');
@@ -671,4 +680,3 @@
 </script>
 </body>
 </html>
-
